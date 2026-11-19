@@ -100,11 +100,11 @@ export function checkVersionMismatch(context: ExtensionContext, log: LogFn, serv
           if (choice === 'Update Extension') {
             commands.executeCommand(
               'workbench.extensions.installExtension',
-              'supernovae.nika',
+              'nika-open.nika',
             ).then(undefined, () => {
               // Cursor and other hosts may not support this command — open marketplace
               env.openExternal(Uri.parse(
-                'https://marketplace.visualstudio.com/items?itemName=supernovae.nika'
+                'https://marketplace.visualstudio.com/items?itemName=nika-open.nika'
               ));
             });
           }

@@ -9,8 +9,8 @@ earned a place in your loop:
 
 - **[Star the engine on GitHub](https://github.com/nika-open/nika)** ·
   the one minute that helps the project most
-- **Rate this extension** · [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=supernovae.nika&ssr=false#review-details)
-  · [Open VSX](https://open-vsx.org/extension/supernovae/nika/reviews)
+- **Rate this extension** · [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=nika-open.nika&ssr=false#review-details)
+  · [Open VSX](https://open-vsx.org/extension/nika-open/nika/reviews)
   (Cursor · Windsurf · VSCodium install from there)
 - **[Share a workflow](https://github.com/nika-open/nika-registry)** ·
   every registry entry is pinned and re-proven by CI

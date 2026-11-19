@@ -11,7 +11,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 
-const EXT_ID = 'supernovae.nika';
+const EXT_ID = 'nika-open.nika';
 
 suite('nika · vscode:// deep-link door', () => {
   suiteSetup(async function () {

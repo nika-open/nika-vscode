@@ -4,7 +4,7 @@ Vendor-neutral agent entry per the AGENTS.md convention (agents.md).
 
 ## What this repo is
 
-The **`nika` extension** (`supernovae.nika`) for VS Code-platform editors (VS Code ·
+The **`nika` extension** (`nika-open.nika`) for VS Code-platform editors (VS Code ·
 Cursor · Windsurf · VSCodium) · the whole workflow surface for
 `.nika`: check-as-you-type diagnostics (via `nika check --json`),
 permits quick-fix, cost inlays, the DAG canvas (live runs · trace
@@ -12,7 +12,7 @@ replay · lenses), the omnibar (`⌘K ⌘M` · commands, tasks, workflows,
 recorded runs in one ranked gate), tree action panels (`⌘K ⌘.`), the
 Station (engine + providers + local-model lifecycle), run detail
 pages, run-with-inputs, deep links. Ships to the VS Code Marketplace
-AND OpenVSX (publisher `supernovae`). TypeScript + esbuild; the brain
+AND OpenVSX (publisher `nika-open`). TypeScript + esbuild; the brain
 is the `nika` binary (LSP client in `src/lspClient.ts`, service seam
 in `src/nikaService.ts`).
 

@@ -40,8 +40,8 @@ export function maybeAskCommunity(verdict: string): void {
         void vscode.env.openExternal(
           vscode.Uri.parse(
             openVsx
-              ? 'https://open-vsx.org/extension/supernovae/nika/reviews'
-              : 'https://marketplace.visualstudio.com/items?itemName=supernovae.nika&ssr=false#review-details',
+              ? 'https://open-vsx.org/extension/nika-open/nika/reviews'
+              : 'https://marketplace.visualstudio.com/items?itemName=nika-open.nika&ssr=false#review-details',
           ),
         );
       }

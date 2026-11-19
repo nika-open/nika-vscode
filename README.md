@@ -26,11 +26,11 @@
 
 <div align="center">
 
-[![Version](https://vsmarketplacebadges.dev/version-short/supernovae.nika.svg)](https://marketplace.visualstudio.com/items?itemName=supernovae.nika)
-[![Installs](https://vsmarketplacebadges.dev/installs-short/supernovae.nika.svg)](https://marketplace.visualstudio.com/items?itemName=supernovae.nika)
-[![Rating](https://vsmarketplacebadges.dev/rating-short/supernovae.nika.svg)](https://marketplace.visualstudio.com/items?itemName=supernovae.nika&ssr=false#review-details)
-[![Open VSX](https://img.shields.io/open-vsx/v/supernovae/nika?label=Open%20VSX&color=2b62ea)](https://open-vsx.org/extension/supernovae/nika)
-[![Open VSX downloads](https://img.shields.io/open-vsx/dt/supernovae/nika?label=downloads&color=555)](https://open-vsx.org/extension/supernovae/nika)
+[![Version](https://vsmarketplacebadges.dev/version-short/nika-open.nika.svg)](https://marketplace.visualstudio.com/items?itemName=nika-open.nika)
+[![Installs](https://vsmarketplacebadges.dev/installs-short/nika-open.nika.svg)](https://marketplace.visualstudio.com/items?itemName=nika-open.nika)
+[![Rating](https://vsmarketplacebadges.dev/rating-short/nika-open.nika.svg)](https://marketplace.visualstudio.com/items?itemName=nika-open.nika&ssr=false#review-details)
+[![Open VSX](https://img.shields.io/open-vsx/v/nika-open/nika?label=Open%20VSX&color=2b62ea)](https://open-vsx.org/extension/nika-open/nika)
+[![Open VSX downloads](https://img.shields.io/open-vsx/dt/nika-open/nika?label=downloads&color=555)](https://open-vsx.org/extension/nika-open/nika)
 
 [![CI](https://img.shields.io/github/actions/workflow/status/nika-open/nika-vscode/ci.yml?branch=main&label=ci)](https://github.com/nika-open/nika-vscode/actions/workflows/ci.yml)
 [![OpenSSF Scorecard](https://img.shields.io/ossf-scorecard/github.com/nika-open/nika-vscode?label=openssf%20scorecard)](https://scorecard.dev/viewer/?uri=github.com/nika-open/nika-vscode)
@@ -220,8 +220,8 @@ did not report.
 
 | Your editor | Install from |
 |---|---|
-| **VS Code** | the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=supernovae.nika), or `code --install-extension supernovae.nika` |
-| **Cursor · Windsurf · VSCodium** | [Open VSX](https://open-vsx.org/extension/supernovae/nika), through the same Extensions search |
+| **VS Code** | the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=nika-open.nika), or `code --install-extension nika-open.nika` |
+| **Cursor · Windsurf · VSCodium** | [Open VSX](https://open-vsx.org/extension/nika-open/nika), through the same Extensions search |
 | **JetBrains · Zed · Neovim** | not this extension: they get the same checks from `nika lsp` and the published JSON Schema |
 
 **The engine** powers everything past syntax colors. Install it with
@@ -763,11 +763,11 @@ A runbook, a pull request or a chat message can open the editor on a
 workflow with a `vscode://` link:
 
 ```text
-vscode://supernovae.nika/dag?file=deploy.nika      open the canvas on a workflow
-vscode://supernovae.nika/check?file=deploy.nika    audit it (asks first)
-vscode://supernovae.nika/run?file=deploy.nika      run it (asks first)
-vscode://supernovae.nika/search?q=deploy           open search with a query
-vscode://supernovae.nika/demo                      open the offline demo
+vscode://nika-open.nika/dag?file=deploy.nika      open the canvas on a workflow
+vscode://nika-open.nika/check?file=deploy.nika    audit it (asks first)
+vscode://nika-open.nika/run?file=deploy.nika      run it (asks first)
+vscode://nika-open.nika/search?q=deploy           open search with a query
+vscode://nika-open.nika/demo                      open the offline demo
 ```
 
 > [!NOTE]

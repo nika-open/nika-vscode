@@ -99,7 +99,7 @@ operator-owned tag ceremony can make the registries claim that version.
 
 ## Blockers · accounts (do these FIRST · lead time)
 
-- [ ] **[VSM]** Publisher `supernovae` at marketplace.visualstudio.com/manage.
+- [ ] **[VSM]** Publisher `nika-open` at marketplace.visualstudio.com/manage.
       Name + displayName are globally unique and burned forever on removal.
 - [ ] **[VSM]** Azure DevOps PAT: org = **All accessible organizations**,
       scope **Marketplace › Manage** (the classic 401 is a wrong-org token).
@@ -109,7 +109,7 @@ operator-owned tag ceremony can make the registries claim that version.
       open-vsx.org via GitHub → link account → **sign the Open VSX Publisher
       Agreement** (not the ECA). Publishing blocked until signed.
 - [ ] **[OVSX]** Token at open-vsx.org/user-settings/tokens (`OVSX_PAT`) ·
-      then `npx ovsx create-namespace supernovae -p $OVSX_PAT`.
+      then `npx ovsx create-namespace nika-open -p $OVSX_PAT`.
 - [ ] **[OVSX]** Claim namespace OWNERSHIP (public issue at
       EclipseFdn/open-vsx.org, issue template) · kills the « unverified ⚠️ »
       shield. No waiting period; do at launch. CI tokens = contributors.
