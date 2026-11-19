@@ -122,7 +122,7 @@ jobs:
         # unrelated PRs here. The spec-pin-heal advances the pin daily
         # through an idempotent PR these same gates judge.
         run: |
-          git clone --filter=blob:none https://github.com/supernovae-st/nika-spec ../spec
+          git clone --filter=blob:none https://github.com/nika-open/nika-spec ../spec
           pin="$(grep -v '^#' SPEC_PIN | head -1 | tr -d '[:space:]')"
           git -C ../spec checkout --quiet "$pin"
           echo "spec pinned at $pin"
@@ -178,8 +178,8 @@ jobs:
           set -euo pipefail
           tag="${{ steps.pin.outputs.pin }}"
           ver="${tag#v}"
-          curl -fsSLO "https://github.com/supernovae-st/nika/releases/download/${tag}/nika-linux-x64-${ver}.tar.gz"
-          curl -fsSLO "https://github.com/supernovae-st/nika/releases/download/${tag}/SHA256SUMS"
+          curl -fsSLO "https://github.com/nika-open/nika/releases/download/${tag}/nika-linux-x64-${ver}.tar.gz"
+          curl -fsSLO "https://github.com/nika-open/nika/releases/download/${tag}/SHA256SUMS"
           grep "nika-linux-x64-${ver}.tar.gz" SHA256SUMS | sha256sum -c -
           tar -xzf "nika-linux-x64-${ver}.tar.gz"
           bin="$(find . -maxdepth 2 -name nika -type f | head -1)"
@@ -190,7 +190,7 @@ jobs:
         if: steps.pin.outputs.mode == 'source'
         run: |
           set -euo pipefail
-          git clone --filter=blob:none https://github.com/supernovae-st/nika "$GITHUB_WORKSPACE/../engine"
+          git clone --filter=blob:none https://github.com/nika-open/nika "$GITHUB_WORKSPACE/../engine"
           git -C "$GITHUB_WORKSPACE/../engine" checkout --detach "${{ steps.pin.outputs.pin }}"
       - uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # master
         if: steps.pin.outputs.mode == 'source'

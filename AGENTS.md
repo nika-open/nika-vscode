@@ -27,7 +27,7 @@ in `src/nikaService.ts`).
   401-wrong-org trap). Never publish a version without the matching engine
   release.
 - The language contract (4 verbs · `${{ }}` CEL · error codes) is the spec
-  repo (`supernovae-st/nika-spec`) · never restate it here, link it.
+  repo (`nika-open/nika-spec`) · never restate it here, link it.
 
 ## Editing rules
 

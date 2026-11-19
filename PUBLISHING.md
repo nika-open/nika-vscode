@@ -193,7 +193,7 @@ microsoft/vscode-platform-specific-sample.
 
 ## Live release CI
 
-The [standalone repository](https://github.com/supernovae-st/nika-vscode)
+The [standalone repository](https://github.com/nika-open/nika-vscode)
 runs [the tag workflow](.github/workflows/release.yml):
 tag-gated → refuse either missing registry secret →
 audit → typecheck · tests · parity → real VS Code integration against the

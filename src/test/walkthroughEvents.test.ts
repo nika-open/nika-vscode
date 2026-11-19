@@ -32,7 +32,7 @@ describe('walkthrough completionEvents — the honest table', () => {
       timetravel: ['onContext:nika.replayStarted'],
       proof: ['onView:nikaRuns', 'onCommand:nika.reproduceRun', 'onCommand:nika.exportOtel', 'onCommand:nika.verifyTrace'],
       agents: ['onCommand:nika.setupMcp', 'onCommand:nika.initProject'],
-      community: ['onLink:https://github.com/supernovae-st/nika'],
+      community: ['onLink:https://github.com/nika-open/nika'],
     });
   });
 

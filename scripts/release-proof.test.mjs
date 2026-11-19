@@ -117,7 +117,7 @@ test('exact-limit metadata in tiny chunks preserves bytes before anchored archiv
 
 test('the publishing runbook names the live standalone release owner', () => {
   const runbook = readFileSync(resolve(root, 'PUBLISHING.md'), 'utf8');
-  assert.match(runbook, /https:\/\/github\.com\/supernovae-st\/nika-vscode/);
+  assert.match(runbook, /https:\/\/github\.com\/nika-open\/nika-vscode/);
   assert.doesNotMatch(runbook, /inert inside|live on split|git subtree split/);
   assert.match(runbook, /not a cross-registry transaction/);
 });

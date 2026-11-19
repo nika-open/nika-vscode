@@ -67,8 +67,8 @@ describe('viewsWelcome — the state matrix', () => {
     const entry = forView('nikaWorkflows').find((w) => w.when === trusted("nika.journey == 'noBinary'"));
     expect(entry?.contents).toContain('not on this machine yet');
     expect(buttonLines(entry?.contents ?? '')[0]).toContain('nika.finishSetup');
-    expect(entry?.contents).toContain('https://github.com/supernovae-st/homebrew-tap');
-    expect(entry?.contents).toContain('https://github.com/supernovae-st/nika#installation');
+    expect(entry?.contents).toContain('https://github.com/nika-open/homebrew-tap');
+    expect(entry?.contents).toContain('https://github.com/nika-open/nika#installation');
   });
 
   it('no welcome state carries color emoji (the glyph registry is mono)', () => {

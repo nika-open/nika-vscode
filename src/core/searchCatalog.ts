@@ -381,7 +381,7 @@ export function buildRestingFoot(caps: { inspect: boolean }): SearchItem[] {
     id: 'nika.starOnGitHub',
     family: 'command',
     label: '$(star) Star nika on GitHub',
-    detail: 'supernovae-st/nika — it helps others find it',
+    detail: 'nika-open/nika — it helps others find it',
     declOrder: rows.length,
     run: { command: 'nika.starOnGitHub' },
   });

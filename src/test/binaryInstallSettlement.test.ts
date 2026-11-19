@@ -48,7 +48,7 @@ beforeEach(() => {
     const sums = target.endsWith('/SHA256SUMS');
     const response = Object.assign(Readable.from([Buffer.from(latest ? '' : sums ? checksum : archive)]), {
       statusCode: latest ? 302 : sums ? checksumStatus : 200,
-      headers: latest ? { location: `https://github.com/supernovae-st/nika/releases/tag/v${MINIMUM_ENGINE_VERSION}` } : {},
+      headers: latest ? { location: `https://github.com/nika-open/nika/releases/tag/v${MINIMUM_ENGINE_VERSION}` } : {},
     });
     const request = new EventEmitter();
     queueMicrotask(() => (callback as (response: unknown) => void)(response));

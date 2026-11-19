@@ -35,7 +35,7 @@ export function maybeAskCommunity(verdict: string): void {
     )
     .then((pick) => {
       if (pick === star) {
-        void vscode.env.openExternal(vscode.Uri.parse('https://github.com/supernovae-st/nika'));
+        void vscode.env.openExternal(vscode.Uri.parse('https://github.com/nika-open/nika'));
       } else if (pick === rate) {
         void vscode.env.openExternal(
           vscode.Uri.parse(

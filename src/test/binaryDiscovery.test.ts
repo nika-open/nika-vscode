@@ -78,14 +78,14 @@ describe('select one local binary without replacing unsupported candidates', () 
 describe.skipIf(process.platform === 'win32')('download support admission', () => {
   it.each(['0.116.2', '0.118.0', '0.120.0', '0.120.1-rc.1', 'malformed'])('refuses public release %s before artifact download or storage writes', async (version) => {
     vi.mocked(https.get).mockImplementation((_url: unknown, _options: unknown, callback: unknown) => {
-      (callback as (response: unknown) => void)({ headers: { location: `https://github.com/supernovae-st/nika/releases/tag/v${version}` }, resume: vi.fn() });
+      (callback as (response: unknown) => void)({ headers: { location: `https://github.com/nika-open/nika/releases/tag/v${version}` }, resume: vi.fn() });
       return { on: vi.fn() } as unknown as ReturnType<typeof https.get>;
     });
     // A malformed tag may require API resolution; give that response a
     // numeric-leading malformed version so refusal remains deterministic.
     if (version === 'malformed') {
       vi.mocked(https.get).mockImplementation((_url: unknown, _options: unknown, callback: unknown) => {
-        (callback as (response: unknown) => void)({ headers: { location: 'https://github.com/supernovae-st/nika/releases/tag/v0.118' }, resume: vi.fn() });
+        (callback as (response: unknown) => void)({ headers: { location: 'https://github.com/nika-open/nika/releases/tag/v0.118' }, resume: vi.fn() });
         return { on: vi.fn() } as unknown as ReturnType<typeof https.get>;
       });
     }
