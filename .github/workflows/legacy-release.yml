@@ -21,6 +21,11 @@ on:
     tags:
       - 'legacy-v[0-9]+.[0-9]+.[0-9]+'
 
+# The job token only reads the repository: the gate checks it out, and
+# both registries are reached with their own tokens, never this one.
+permissions:
+  contents: read
+
 jobs:
   gate:
     runs-on: ubuntu-latest
