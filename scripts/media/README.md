@@ -42,7 +42,7 @@ ffmpeg -ss 1.0 -to 24.1 -i scripts/media/lens-tour.webm \
   media/lens-deck.gif
 gifsicle -O3 --lossy=90 media/lens-deck.gif -o media/lens-deck.gif
 
-# 4 · the diagnostics clip: rendered by supernovae-st/nika
+# 4 · the diagnostics clip: rendered by nika-open/nika
 #     (media/gifs/editor-diagnostics.optimized.gif · 12 fps); this copy
 #     keeps its palette settings and drops to 10 fps for the budget
 ffmpeg -i <nika checkout>/media/gifs/editor-diagnostics.optimized.gif \

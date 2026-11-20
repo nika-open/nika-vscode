@@ -2,9 +2,10 @@
 
 All notable changes to the extension. Versions paced the engine's
 release line, in lockstep on the engine's major.minor from 0.97 to 0.120.
-The extension is frozen at 0.120.0, the last release on both marketplaces
-(2026-09-18), and was not qualified with engine 0.123. The 0.120.1 entry
-below is source on `main` and was never published.
+The extension is frozen and was not qualified with engine 0.123 or later.
+Its last release, 0.120.1, is `nika-open.nika` on Open VSX. Up to 0.120.0
+(2026-09-18) it was published as `supernovae.nika`, which remains the
+Visual Studio Marketplace listing.
 
 ## [0.120.1] · public engine 0.120.1
 
@@ -19,8 +20,12 @@ Public 0.120.1 includes the project-schema correction from
 [Spec #345](https://github.com/supernovae-st/nika-spec/pull/345):
 canonical `.nika` paths in `nika.yaml` arm bindings are accepted.
 NIKA-SEC-014 refuses a value read of a certainly-skipped confirm stage.
-Marketplace publication of this version remains a separate release
-receipt; the 0.120.0 Marketplace listing stays.
+
+It is the first release as `nika-open.nika`, after the repository moved to
+the `nika-open` organization: the publisher, the repository links and the
+release workflow changed. It is published on Open VSX only. The Visual
+Studio Marketplace refused it, because the name `nika` belongs to
+`supernovae.nika` and an extension cannot move to another publisher.
 
 ## [0.120.0] · public engine qualification
 

@@ -1,18 +1,18 @@
 {
   "name": "nika",
-  "displayName": "Nika Workflow Language",
+  "displayName": "Nika",
   "description": "See your workflow before it runs: the live DAG canvas for Nika, the workflow language for AI (.nika). Check-as-you-type diagnostics, run + time-travel replay, and a static audit before a token is spent (cost ceiling · secret-flow · permits). Local-first: Ollama, llama.cpp, vLLM, Mistral + more. For VS Code, Cursor, Windsurf, VSCodium.",
   "version": "0.120.1",
-  "publisher": "supernovae",
+  "publisher": "nika-open",
   "license": "AGPL-3.0-or-later",
   "icon": "icons/nika-icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/supernovae-st/nika-vscode"
+    "url": "https://github.com/nika-open/nika-vscode"
   },
   "homepage": "https://nika.sh",
   "bugs": {
-    "url": "https://github.com/supernovae-st/nika-vscode/issues"
+    "url": "https://github.com/nika-open/nika-vscode/issues"
   },
   "galleryBanner": {
     "color": "#0d0d0e",
@@ -1728,7 +1728,7 @@
           {
             "id": "install",
             "title": "Install the nika engine",
-            "description": "The extension drives the `nika` binary (LSP · check · run · DAG).\n[Finish Setup · one gesture](command:nika.finishSetup)\nVerified download · MCP wired · LSP on. Prefer brew? `brew install supernovae-st/tap/nika`, then the same button detects it.",
+            "description": "The extension drives the `nika` binary (LSP · check · run · DAG).\n[Finish Setup · one gesture](command:nika.finishSetup)\nVerified download · MCP wired · LSP on. Prefer brew? `brew install nika-open/tap/nika`, then the same button detects it.",
             "media": {
               "svg": "walkthrough/assets/install-engine.svg",
               "altText": "One binary: the extension drives nika: check, run with local traces, language server, time-travel debug. Install via Finish Setup (verified download) or brew."
@@ -1837,12 +1837,12 @@
           {
             "id": "community",
             "title": "Keep it findable",
-            "description": "Nika is independent open source: a star is how the next person finds it.\n[Star on GitHub](https://github.com/supernovae-st/nika)",
+            "description": "Nika is independent open source: a star is how the next person finds it.\n[Star on GitHub](https://github.com/nika-open/nika)",
             "media": {
               "markdown": "walkthrough/09-community.md"
             },
             "completionEvents": [
-              "onLink:https://github.com/supernovae-st/nika"
+              "onLink:https://github.com/nika-open/nika"
             ]
           }
         ]
@@ -1867,7 +1867,7 @@
       {
         "view": "nikaWorkflows",
         "when": "isWorkspaceTrusted && (nika.journey == 'noBinary')",
-        "contents": "Nika turns repeatable AI work into files: one `.nika`, four verbs, audited before it runs.\nThe engine is not on this machine yet: every surface below waits on it.\n[Finish setup · install engine + wire everything](command:nika.finishSetup)\nVerified download (SHA256SUMS) · MCP · LSP: one gesture, everything lights up.\nPrefer your own install? [Homebrew tap](https://github.com/supernovae-st/homebrew-tap) · [build from source](https://github.com/supernovae-st/nika#installation): both sovereign, no account."
+        "contents": "Nika turns repeatable AI work into files: one `.nika`, four verbs, audited before it runs.\nThe engine is not on this machine yet: every surface below waits on it.\n[Finish setup · install engine + wire everything](command:nika.finishSetup)\nVerified download (SHA256SUMS) · MCP · LSP: one gesture, everything lights up.\nPrefer your own install? [Homebrew tap](https://github.com/nika-open/homebrew-tap) · [build from source](https://github.com/nika-open/nika#installation): both sovereign, no account."
       },
       {
         "view": "nikaWorkflows",
@@ -2017,6 +2017,7 @@
     "eslint": "^10.15.0",
     "glob": "^14.0.6",
     "mocha": "^12.0.1",
+    "ovsx": "^1.4.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.73.0",
     "vitest": "^5.1.1"

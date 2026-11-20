@@ -14,11 +14,11 @@ import { extractBinaryFromTarGz, extractBinaryFromZip } from './core/archive';
 import { engineSupportError, probeBinaryVersion, versionReceiptError } from './core/binaryVersion';
 import { findCommandOnPath } from './core/pathLookup';
 
-const GITHUB_RELEASES_API = 'https://api.github.com/repos/supernovae-st/nika/releases/latest';
-const GITHUB_LATEST_HTML = 'https://github.com/supernovae-st/nika/releases/latest';
-const GITHUB_DOWNLOAD_BASE = 'https://github.com/supernovae-st/nika/releases/download';
-export const GITHUB_INSTALL_URL = 'https://github.com/supernovae-st/nika#installation';
-export const GITHUB_RELEASES_URL = 'https://github.com/supernovae-st/nika/releases/latest';
+const GITHUB_RELEASES_API = 'https://api.github.com/repos/nika-open/nika/releases/latest';
+const GITHUB_LATEST_HTML = 'https://github.com/nika-open/nika/releases/latest';
+const GITHUB_DOWNLOAD_BASE = 'https://github.com/nika-open/nika/releases/download';
+export const GITHUB_INSTALL_URL = 'https://github.com/nika-open/nika#installation';
+export const GITHUB_RELEASES_URL = 'https://github.com/nika-open/nika/releases/latest';
 
 /**
  * The release version, WITHOUT the API when possible: the html

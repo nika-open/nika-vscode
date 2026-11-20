@@ -52,5 +52,5 @@
   <!-- The two install routes -->
   <line class="wire" x1="24" y1="256" x2="776" y2="256" stroke-width="1" stroke-opacity="0.25"/>
   <text class="ui" x="24" y="284" font-size="13"><tspan class="accent">Finish Setup</tspan> — verified download, MCP wired, LSP on</text>
-  <text class="codedim" x="420" y="284" font-size="13">or: brew install supernovae-st/tap/nika</text>
+  <text class="codedim" x="420" y="284" font-size="13">or: brew install nika-open/tap/nika</text>
 </svg>

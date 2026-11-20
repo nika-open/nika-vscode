@@ -3,7 +3,7 @@
 ## Reporting
 
 Please report vulnerabilities privately via
-[GitHub security advisories](https://github.com/supernovae-st/nika-vscode/security/advisories/new)
+[GitHub security advisories](https://github.com/nika-open/nika-vscode/security/advisories/new)
 · not in public issues. You'll get an acknowledgment within 72 hours.
 
 ## What this extension runs · and what it never does
@@ -18,7 +18,7 @@ Please report vulnerabilities privately via
   shells out to user-controlled command strings.
 - **The installer is https-only and checksum-gated.** The optional
   binary installer downloads exclusively from
-  `github.com/supernovae-st/nika` releases, refuses any non-https
+  `github.com/nika-open/nika` releases, refuses any non-https
   redirect, and verifies the artifact against the release `SHA256SUMS`
   before it lands. A checksum miss is a hard stop, not a warning.
 - **Credentials are linted, never collected.** The literal-credential
@@ -33,9 +33,10 @@ Please report vulnerabilities privately via
 
 ## Supported
 
-The extension is frozen at 0.120.0, the release on both marketplaces. It is
-no longer developed and was not qualified with engine 0.123. Report a
-vulnerability in it privately, as above. The engine it runs, including
+The extension is frozen: `nika-open.nika` 0.120.1 on Open VSX and
+`supernovae.nika` 0.120.0 on the Visual Studio Marketplace. It is no longer
+developed and was not qualified with engine 0.123 or later.
+Report a vulnerability in it privately, as above. The engine it runs, including
 `nika lsp`, has its own
-[security policy](https://github.com/supernovae-st/nika/blob/main/SECURITY.md).
+[security policy](https://github.com/nika-open/nika/blob/main/SECURITY.md).
 Older `.vsix` artifacts are not patched retroactively.

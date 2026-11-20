@@ -10,6 +10,11 @@ name: marketplace recover 0.120.0
 on:
   workflow_dispatch:
 
+# The only use of the job token is downloading the artifact of run
+# 35389419110, which needs actions: read. Nothing is checked out.
+permissions:
+  actions: read
+
 jobs:
   publish:
     runs-on: ubuntu-latest

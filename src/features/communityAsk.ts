@@ -35,13 +35,13 @@ export function maybeAskCommunity(verdict: string): void {
     )
     .then((pick) => {
       if (pick === star) {
-        void vscode.env.openExternal(vscode.Uri.parse('https://github.com/supernovae-st/nika'));
+        void vscode.env.openExternal(vscode.Uri.parse('https://github.com/nika-open/nika'));
       } else if (pick === rate) {
         void vscode.env.openExternal(
           vscode.Uri.parse(
             openVsx
-              ? 'https://open-vsx.org/extension/supernovae/nika/reviews'
-              : 'https://marketplace.visualstudio.com/items?itemName=supernovae.nika&ssr=false#review-details',
+              ? 'https://open-vsx.org/extension/nika-open/nika/reviews'
+              : 'https://marketplace.visualstudio.com/items?itemName=nika-open.nika&ssr=false#review-details',
           ),
         );
       }

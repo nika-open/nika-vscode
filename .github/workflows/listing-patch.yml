@@ -15,6 +15,11 @@ name: listing identity patch
 on:
   workflow_dispatch:
 
+# The job token only reads the repository: the gate checks out the
+# recovery branch, and both registries are reached with their own tokens.
+permissions:
+  contents: read
+
 jobs:
   gate:
     runs-on: ubuntu-latest

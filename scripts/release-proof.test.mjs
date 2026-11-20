@@ -5,6 +5,7 @@ import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSyn
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
+import { ACCEPTED, judgeAudit } from './release-audit.mjs';
 import { runIntegration, runSuite } from './run-integration.mjs';
 import {
   assertVersionReceipt,
@@ -117,7 +118,7 @@ test('exact-limit metadata in tiny chunks preserves bytes before anchored archiv
 
 test('the publishing runbook names the live standalone release owner', () => {
   const runbook = readFileSync(resolve(root, 'PUBLISHING.md'), 'utf8');
-  assert.match(runbook, /https:\/\/github\.com\/supernovae-st\/nika-vscode/);
+  assert.match(runbook, /https:\/\/github\.com\/nika-open\/nika-vscode/);
   assert.doesNotMatch(runbook, /inert inside|live on split|git subtree split/);
   assert.match(runbook, /not a cross-registry transaction/);
 });
@@ -227,17 +228,131 @@ test('the integration launcher cannot fall back to Homebrew or PATH', () => {
   assert.match(packageJson.scripts['test:integration'], /scripts\/run-integration\.mjs/);
 });
 
-test('the release ceremony fails closed and gates before packaging', () => {
-  const workflow = readFileSync(resolve(root, '.github/workflows/release.yml'), 'utf8');
-  assert.match(workflow, /\[ -n "\$OVSX_PAT" \].*exit 1/);
-  assert.match(workflow, /\[ -n "\$VSCE_PAT" \].*exit 1/);
+// Both release ceremonies share one shape: a gate that runs every check
+// before packaging, then a publish job that holds the only OIDC permission.
+function releaseCeremony(file) {
+  const workflow = readFileSync(resolve(root, '.github/workflows', file), 'utf8');
+  const code = (text) => text.split('\n').filter((line) => !/^\s*#/.test(line)).join('\n');
+  const [gate, publish] = workflow.split(/\n {2}publish:\n/);
+  assert.ok(publish, `${file} has a publish job after the gate`);
+  // Trusted publishing: no Marketplace secret anywhere, and the gate (which
+  // runs every dev dependency) can neither mint an OIDC token nor read a secret.
+  assert.doesNotMatch(code(workflow), /VSCE_PAT/);
+  assert.doesNotMatch(code(gate), /id-token|secrets\./);
+  assert.equal(code(publish).match(/id-token: write/g)?.length, 1);
+  assert.match(publish, /^\s+needs: gate$/m);
+  // The publish job runs the locked CLIs only: no install scripts, no npx fetch.
+  assert.match(publish, /^\s+- run: npm ci --ignore-scripts$/m);
+  assert.doesNotMatch(code(publish), /uses: HaaLeo\//);
+  // An occupied version stays an error in every registry.
   assert.doesNotMatch(workflow, /HAS_OVSX|HAS_VSCE|if: env\.HAS_/);
-  assert.doesNotMatch(workflow, /skipDuplicate:\s*true|skip-duplicate/);
-  assert.equal(workflow.match(/skipDuplicate:\s*false/g)?.length, 2);
-  assert.ok(workflow.indexOf('npm audit --audit-level=low') < workflow.indexOf('npm run test:integration'));
-  assert.ok(workflow.indexOf('npm run test:integration') < workflow.indexOf('npx vsce package'));
+  assert.doesNotMatch(workflow, /skipDuplicate|skip-duplicate/);
+  // The audit is the gate with its named exceptions, never a bare npm audit,
+  // and every check precedes packaging.
+  assert.doesNotMatch(code(workflow), /npm audit/);
+  const order = ['run: node scripts/release-audit.mjs', 'npm run test:integration', 'npx vsce package'];
+  order.forEach((step, index) => {
+    assert.ok(gate.includes(step), `${file} gate runs ${step}`);
+    if (index > 0) { assert.ok(gate.indexOf(order[index - 1]) < gate.indexOf(step), `${step} comes last`); }
+  });
   for (const action of workflow.matchAll(/uses:\s+([^\s#]+)/g)) {
     assert.match(action[1], /@[0-9a-f]{40}$/, `action is not SHA-pinned: ${action[1]}`);
+  }
+  return { gate, publish };
+}
+
+test('the release ceremony fails closed, gates before packaging and publishes to OpenVSX only', () => {
+  const { publish } = releaseCeremony('release.yml');
+  assert.match(publish, /^\s+npx --no-install ovsx publish nika\.vsix$/m);
+  assert.match(publish, /^\s+npx --no-install ovsx publish nika\.vsix --trusted-publishing$/m);
+  // The Marketplace keeps supernovae.nika: it refuses a second extension named nika.
+  assert.doesNotMatch(publish, /vsce publish/);
+});
+
+test('the legacy ceremony gates both old identifiers before publishing either', () => {
+  const { gate, publish } = releaseCeremony('legacy-release.yml');
+  for (const job of [gate, publish]) {
+    assert.match(job, /^\s+legacy: \[nika, nika-lang\]$/m);
+    assert.match(job, /^\s+VSIX: supernovae\.\$\{\{ matrix\.legacy \}\}\.vsix$/m);
+  }
+  // One identifier failing never cancels the other between its two registries.
+  assert.match(publish, /^\s+fail-fast: false$/m);
+  assert.match(publish, /^\s+npx --no-install ovsx publish "\$VSIX"$/m);
+  assert.match(publish, /^\s+npx --no-install ovsx publish "\$VSIX" --trusted-publishing$/m);
+  assert.match(publish, /^\s+run: npx --no-install vsce publish --oidc --packagePath "\$VSIX"$/m);
+  assert.ok(publish.indexOf('ovsx publish') < publish.indexOf('vsce publish'));
+  // The canonical listings are public before the old identifier's tree exists.
+  const listings = gate.indexOf('node scripts/check-canonical-listings.mjs');
+  const prepare = gate.indexOf('node scripts/prepare-legacy-release.mjs legacy-source "$LEGACY"');
+  assert.ok(listings >= 0 && listings < prepare && prepare < gate.indexOf('node scripts/release-audit.mjs'));
+  assert.match(gate, /^\s+test "legacy-v\$v" = "\$GITHUB_REF_NAME"/m);
+});
+
+const advisory = (name, id, severity = 'moderate') => ({
+  source: 1244623, name, dependency: name, title: 'advisory', severity, range: '>=7.0.0 <11.0.1',
+  url: `https://github.com/advisories/${id}`,
+});
+const auditReport = (vulnerabilities) => ({ auditReportVersion: 2, vulnerabilities, metadata: {} });
+// The shape `npm audit --json` reported on 20 November 2026 for the lockfile of #343.
+const minimatchUnderTheClient = () => auditReport({
+  'minimatch': { name: 'minimatch', severity: 'moderate', isDirect: false, range: '7.0.0 - 11.0.0',
+    via: [advisory('minimatch', 'GHSA-g3hv-75wg-m249')], effects: ['vscode-languageclient'],
+    nodes: ['node_modules/minimatch'] },
+  'vscode-languageclient': { name: 'vscode-languageclient', severity: 'moderate', isDirect: true,
+    range: '>=9.0.2-next.1', via: ['minimatch'], effects: [], nodes: ['node_modules/vscode-languageclient'] },
+});
+const auditNames = (lines) => lines.map((line) => line.split(' ')[0]).sort();
+
+test('the release audit accepts one advisory through one package and nothing else', () => {
+  assert.deepEqual(ACCEPTED.map(({ advisory: id, package: name, dependents }) => [id, name, dependents]),
+    [['GHSA-g3hv-75wg-m249', 'minimatch', ['vscode-languageclient']]]);
+  const today = judgeAudit(minimatchUnderTheClient());
+  assert.deepEqual(today.blocking, []);
+  assert.deepEqual(auditNames(today.accepted), ['minimatch', 'vscode-languageclient']);
+  assert.deepEqual(today.unused, []);
+
+  // The same advisory reached through any other package blocks the whole chain.
+  const wider = minimatchUnderTheClient();
+  wider.vulnerabilities.minimatch.effects.push('eslint');
+  wider.vulnerabilities.eslint = { name: 'eslint', severity: 'moderate', via: ['minimatch'], effects: [],
+    nodes: ['node_modules/eslint'] };
+  assert.deepEqual(auditNames(judgeAudit(wider).blocking), ['eslint', 'minimatch', 'vscode-languageclient']);
+  assert.deepEqual(judgeAudit(wider).unused, []);
+
+  // Another advisory on minimatch blocks, and so does one on the client itself.
+  const second = minimatchUnderTheClient();
+  second.vulnerabilities.minimatch.via.push(advisory('minimatch', 'GHSA-aaaa-bbbb-cccc', 'high'));
+  assert.deepEqual(auditNames(judgeAudit(second).blocking), ['minimatch', 'vscode-languageclient']);
+  const own = minimatchUnderTheClient();
+  own.vulnerabilities['vscode-languageclient'].via.push(advisory('vscode-languageclient', 'GHSA-dddd-eeee-ffff'));
+  assert.deepEqual(auditNames(judgeAudit(own).blocking), ['vscode-languageclient']);
+
+  // The accepted advisory on another package blocks: an exception names its package.
+  const elsewhere = auditReport({ glob: { name: 'glob', severity: 'moderate', effects: [],
+    via: [advisory('glob', 'GHSA-g3hv-75wg-m249')], nodes: ['node_modules/glob'] } });
+  assert.deepEqual(auditNames(judgeAudit(elsewhere).blocking), ['glob']);
+
+  // Low blocks, as --audit-level=low did; info does not.
+  const low = minimatchUnderTheClient();
+  low.vulnerabilities.qs = { name: 'qs', severity: 'low', effects: [], nodes: ['node_modules/qs'],
+    via: [advisory('qs', 'GHSA-1111-2222-3333', 'low')] };
+  assert.deepEqual(auditNames(judgeAudit(low).blocking), ['qs']);
+  low.vulnerabilities.qs.severity = 'info';
+  assert.deepEqual(judgeAudit(low).blocking, []);
+
+  // A chain through a package the report does not list is not explained.
+  const dangling = minimatchUnderTheClient();
+  dangling.vulnerabilities['vscode-languageclient'].via.push('ghost');
+  assert.deepEqual(auditNames(judgeAudit(dangling).blocking), ['vscode-languageclient']);
+
+  // A fixed upstream leaves the exception unused: reported, not refused.
+  const fixed = judgeAudit(auditReport({}));
+  assert.deepEqual(fixed.blocking, []);
+  assert.deepEqual(fixed.unused, ['GHSA-g3hv-75wg-m249 on minimatch']);
+
+  // No report at all is a refusal.
+  for (const broken of [undefined, {}, { error: { code: 'ENOAUDIT', summary: 'audit endpoint error' } }]) {
+    assert.equal(judgeAudit(broken).blocking.length, 1);
   }
 });
 
@@ -332,35 +447,52 @@ test('deadbeef0 archive and co-modified SHA256SUMS cannot replace the anchored r
 });
 
 
-test('legacy redirect retains functionality and refuses to overwrite a source tree', () => {
+test('legacy redirects retain functionality, keep their listing names and refuse to overwrite a source tree', () => {
   const fixture = mkdtempSync(join(tmpdir(), 'nika-legacy-source-'));
   try {
     const source = join(fixture, 'repo');
-    const target = join(fixture, 'legacy');
+    const script = join(source, 'scripts', 'prepare-legacy-release.mjs');
     mkdirSync(join(source, 'scripts'), { recursive: true });
     mkdirSync(join(source, 'src'));
-    const manifest = { name: 'nika', publisher: 'supernovae', version: '0.118.7',
+    const manifest = { name: 'nika', publisher: 'nika-open', displayName: 'Nika', version: '0.120.1',
       main: './out/extension.js', activationEvents: ['onUri', 'onStartupFinished'],
       capabilities: { untrustedWorkspaces: { supported: 'limited' } },
       contributes: { commands: [{ command: 'nika.runWorkflow' }] } };
     writeFileSync(join(source, 'package.json'), JSON.stringify(manifest));
     writeFileSync(join(source, 'package-lock.json'), JSON.stringify({ name: 'nika', packages: { '': { name: 'nika' } } }));
     writeFileSync(join(source, 'README.md'), '# Nika\n');
-    writeFileSync(join(source, 'CHANGELOG.md'), '## [0.118.7]\n');
-    writeFileSync(join(source, 'src', 'extension.ts'), "const id = 'supernovae.nika'; const other = 'supernovae.nika-other';");
-    writeFileSync(join(source, 'scripts', 'prepare-legacy-release.mjs'), readFileSync(join(root, 'scripts/prepare-legacy-release.mjs')));
+    writeFileSync(join(source, 'CHANGELOG.md'), '## [0.120.1]\n');
+    writeFileSync(join(source, 'src', 'extension.ts'),
+      "const id = 'nika-open.nika'; const walk = 'nika-open.nika#nika.gettingStarted'; const other = 'nika-open.nika-other';");
+    writeFileSync(script, readFileSync(join(root, 'scripts/prepare-legacy-release.mjs')));
     execFileSync('git', ['init', '-q', source]);
     execFileSync('git', ['add', '.'], { cwd: source });
-    execFileSync(process.execPath, [join(source, 'scripts/prepare-legacy-release.mjs'), target]);
-    assert.deepEqual(JSON.parse(readFileSync(join(source, 'package.json'))), manifest);
-    assert.deepEqual(JSON.parse(readFileSync(join(target, 'package.json'))), { ...manifest, name: 'nika-lang' });
-    const runtime = readFileSync(join(target, 'src/extension.ts'), 'utf8');
-    assert.match(runtime, /supernovae\.nika-lang'/);
-    assert.match(runtime, /supernovae\.nika-other'/);
-    const readme = readFileSync(join(target, 'README.md'), 'utf8');
-    assert.match(readme, /itemName=supernovae\.nika\)/);
-    assert.match(readme, /disable this old extension/);
-    assert.throws(() => execFileSync(process.execPath, [join(source, 'scripts/prepare-legacy-release.mjs'), target], { stdio: 'pipe' }));
-    assert.deepEqual(JSON.parse(readFileSync(join(target, 'package.json'))), { ...manifest, name: 'nika-lang' });
+    // Marketplace display names are unique: each old listing keeps the one it owns.
+    const listings = { 'nika': 'Nika Workflow Language', 'nika-lang': 'Nika Workflow Language (legacy identifier)' };
+    for (const [legacy, displayName] of Object.entries(listings)) {
+      const target = join(fixture, legacy);
+      const expected = { ...manifest, publisher: 'supernovae', name: legacy, displayName };
+      execFileSync(process.execPath, [script, target, legacy]);
+      assert.deepEqual(JSON.parse(readFileSync(join(source, 'package.json'))), manifest);
+      assert.deepEqual(JSON.parse(readFileSync(join(target, 'package.json'))), expected);
+      const lock = JSON.parse(readFileSync(join(target, 'package-lock.json')));
+      assert.deepEqual([lock.name, lock.packages[''].name], [legacy, legacy]);
+      assert.equal(readFileSync(join(target, 'src/extension.ts'), 'utf8'),
+        `const id = 'supernovae.${legacy}'; const walk = 'supernovae.${legacy}#nika.gettingStarted'; const other = 'nika-open.nika-other';`);
+      const readme = readFileSync(join(target, 'README.md'), 'utf8');
+      assert.match(readme, /^# Nika has moved to nika-open\.nika\n/);
+      assert.ok(readme.includes(`the old identifier, supernovae.${legacy}.`));
+      assert.ok(readme.includes('(https://marketplace.visualstudio.com/items?itemName=nika-open.nika)'));
+      assert.ok(readme.includes('(https://open-vsx.org/extension/nika-open/nika)'));
+      assert.match(readme, /disable this old extension/);
+      assert.ok(readFileSync(join(target, 'CHANGELOG.md'), 'utf8').includes(`This package remains supernovae.${legacy}.`));
+      assert.throws(() => execFileSync(process.execPath, [script, target, legacy], { stdio: 'pipe' }));
+      assert.deepEqual(JSON.parse(readFileSync(join(target, 'package.json'))), expected);
+    }
+    // Only the two old identifiers exist, built from the nika-open.nika manifest only.
+    assert.throws(() => execFileSync(process.execPath, [script, join(fixture, 'other'), 'nika-other'], { stdio: 'pipe' }));
+    assert.throws(() => execFileSync(process.execPath, [script, join(fixture, 'unnamed')], { stdio: 'pipe' }));
+    writeFileSync(join(source, 'package.json'), JSON.stringify({ ...manifest, publisher: 'supernovae' }));
+    assert.throws(() => execFileSync(process.execPath, [script, join(fixture, 'stale'), 'nika'], { stdio: 'pipe' }));
   } finally { rmSync(fixture, { recursive: true, force: true }); }
 });

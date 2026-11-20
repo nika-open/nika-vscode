@@ -975,7 +975,7 @@ export class DagPanel implements vscode.Disposable {
       case 'dag:openWalkthrough':
         void vscode.commands.executeCommand(
           'workbench.action.openWalkthrough',
-          'supernovae.nika#nika.gettingStarted',
+          'nika-open.nika#nika.gettingStarted',
         );
         break;
 
@@ -1270,7 +1270,7 @@ export class DagPanel implements vscode.Disposable {
       <div id="es-binary" hidden role="status">
         <span class="es-binary-mark" aria-hidden="true">⚠</span>
         <span class="es-binary-text">The nika engine is not on this machine · every check, graph
-        and run needs it. <code>brew install supernovae-st/tap/nika</code> or let the extension
+        and run needs it. <code>brew install nika-open/tap/nika</code> or let the extension
         fetch the official binary (HTTPS · SHA-256 verified · ~10 MB).</span>
         <button class="es-button es-cmd" data-cmd="nika.restartServer">⟳ Detect / download</button>
       </div>

@@ -169,7 +169,7 @@ export class AuditCodeLensProvider implements vscode.CodeLensProvider, vscode.Di
       new vscode.CodeLens(env, {
         command: 'nika.starOnGitHub',
         title: '$(github) GitHub',
-        tooltip: 'supernovae-st/nika — the engine source · issues · releases',
+        tooltip: 'nika-open/nika — the engine source · issues · releases',
       }),
       new vscode.CodeLens(actions, {
         command: 'nika.checkWorkflow',

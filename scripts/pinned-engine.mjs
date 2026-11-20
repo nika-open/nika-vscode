@@ -17,7 +17,7 @@ import {
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
-const RELEASES = 'https://github.com/supernovae-st/nika/releases/download';
+const RELEASES = 'https://github.com/nika-open/nika/releases/download';
 // Admission bounds apply before buffering, independently of mutable HTTP
 // metadata. The reviewed archives are below 20 MiB; leave explicit headroom
 // for future releases without granting the response unbounded memory.

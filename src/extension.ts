@@ -508,8 +508,8 @@ async function requireEngine(service: NikaService, doing: string): Promise<boole
     return service.available;
   }
   if (pick === 'Copy brew command') {
-    await env.clipboard.writeText('brew install supernovae-st/tap/nika');
-    void window.setStatusBarMessage('$(clippy) brew install supernovae-st/tap/nika', 4000);
+    await env.clipboard.writeText('brew install nika-open/tap/nika');
+    void window.setStatusBarMessage('$(clippy) brew install nika-open/tap/nika', 4000);
   }
   return false;
 }
@@ -760,7 +760,7 @@ function activateTrusted(context: ExtensionContext): void {
   // The one earned ask (mirrors the CLI's community line — #498).
   context.subscriptions.push(
     commands.registerCommand('nika.starOnGitHub', () => {
-      void env.openExternal(Uri.parse('https://github.com/supernovae-st/nika'));
+      void env.openExternal(Uri.parse('https://github.com/nika-open/nika'));
     }),
   );
 
@@ -3111,7 +3111,7 @@ function activateTrusted(context: ExtensionContext): void {
     commands.registerCommand('nika.openWalkthrough', () => {
       void commands.executeCommand(
         'workbench.action.openWalkthrough',
-        'supernovae.nika#nika.gettingStarted',
+        'nika-open.nika#nika.gettingStarted',
         false,
       );
     }),
@@ -3182,7 +3182,7 @@ function activateTrusted(context: ExtensionContext): void {
         if (choice === 'Open walkthrough') {
           void commands.executeCommand(
             'workbench.action.openWalkthrough',
-            'supernovae.nika#nika.gettingStarted',
+            'nika-open.nika#nika.gettingStarted',
             false,
           );
         }
@@ -3944,7 +3944,7 @@ function activateTrusted(context: ExtensionContext): void {
           'Install guide',
         ).then(choice => {
           if (choice === 'Finish setup') { void commands.executeCommand('nika.finishSetup'); }
-          else if (choice === 'Copy brew command') { void env.clipboard.writeText('brew install supernovae-st/tap/nika'); }
+          else if (choice === 'Copy brew command') { void env.clipboard.writeText('brew install nika-open/tap/nika'); }
           else if (choice === 'Install guide') { void commands.executeCommand('vscode.open', Uri.parse(GITHUB_INSTALL_URL)); }
         });
       }
@@ -4084,7 +4084,7 @@ function activateTrusted(context: ExtensionContext): void {
 
   // ─── The front door: vscode:// deep links (external · guarded) ────────────
   //
-  // `vscode://supernovae.nika/<action>?<query>` — five actions, one
+  // `vscode://nika-open.nika/<action>?<query>` — five actions, one
   // gate (core/deepLink · the welcomeGuard discipline for EXTERNAL input:
   // strict allowlist · canonical relative workflow paths · fails-closed).
   // Resolution is a capability, not a path walk: the named file must be
@@ -4218,7 +4218,7 @@ function activateTrusted(context: ExtensionContext): void {
       if (!context.globalState.get<boolean>('nika.binaryNudgeShown')) {
         await context.globalState.update('nika.binaryNudgeShown', true);
         const choice = await window.showWarningMessage(
-          'Nika: binary not found. Install it (brew install supernovae-st/tap/nika) or let the extension download it.',
+          'Nika: binary not found. Install it (brew install nika-open/tap/nika) or let the extension download it.',
           'Open Install Guide',
         );
         if (choice === 'Open Install Guide') {
@@ -4398,7 +4398,7 @@ async function resolveBinary(context: ExtensionContext, explicit = false): Promi
         } else if (choice === 'Open walkthrough') {
           void commands.executeCommand(
             'workbench.action.openWalkthrough',
-            'supernovae.nika#nika.gettingStarted',
+            'nika-open.nika#nika.gettingStarted',
             false,
           );
         }
@@ -4423,7 +4423,7 @@ async function resolveBinary(context: ExtensionContext, explicit = false): Promi
       'Details',
     ).then((pick) => {
       if (pick === 'Copy brew command') {
-        void env.clipboard.writeText('brew install supernovae-st/tap/nika');
+        void env.clipboard.writeText('brew install nika-open/tap/nika');
         flashStatus('$(clippy) brew command copied — run it in a terminal, then Install / detect from the status bar', 6000);
       } else if (pick === 'Open releases') {
         void env.openExternal(Uri.parse(GITHUB_RELEASES_URL));
