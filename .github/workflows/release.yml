@@ -1,16 +1,24 @@
 # release.yml — tag-gated publish (OpenVSX + VS Marketplace).
 #
 # Push a `v*` tag → package the VSIX once → publish the identical artifact
-# to both registries. One VSIX, two registries. Missing credentials fail
-# before the artifact is built: a green tag means both publishes ran.
+# to both registries. One VSIX, two registries: a green tag means both
+# publishes ran.
 # Linux runner ON PURPOSE: Windows-built VSIXes drop the POSIX executable
 # bit, which breaks any bundled binary (PUBLISHING.md §platform-specific).
 # Injection-safe: no github.event data is interpolated anywhere.
 #
-# Required secrets:
-#   OVSX_PAT — open-vsx.org token · namespace contributor (Cursor/Windsurf/VSCodium)
-#   VSCE_PAT — Azure DevOps · Marketplace>Manage · all-orgs
-#              (migrate to Entra --azure-credential before Dec 2026)
+# Registry identity · trusted publishing (OIDC), no Marketplace secret:
+#   VS Marketplace · the publisher nika-open trusts this repository and this
+#                    file (policy « Release workflow »): `vsce publish --oidc`
+#                    exchanges the publish job's GitHub token for a
+#                    Marketplace credential that lasts 15 minutes.
+#   OpenVSX        · a trusted publisher can only be registered for an
+#                    extension that already has a version, so the FIRST
+#                    nika-open.nika version goes out with the OVSX_PAT secret
+#                    (an open-vsx.org token of a nika-open namespace owner).
+#                    Then register the trusted publisher for nika-open.nika
+#                    and delete OVSX_PAT: the same step exchanges the job's
+#                    token from then on (PUBLISHING.md §Live release CI).
 
 name: release
 
@@ -19,8 +27,9 @@ on:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 
-# The job token only reads the repository: the gate checks it out, and
-# both registries are reached with their own tokens, never this one.
+# The workflow token only reads the repository. The publish job alone may
+# also request an OIDC token, which a registry exchanges for a short-lived
+# publishing credential; the gate, which runs every dev dependency, never can.
 permissions:
   contents: read
 
@@ -32,16 +41,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: 22 # vsce 3.x floor
+          node-version: 22 # vsce 4 and ovsx 1.4 floor
           cache: npm
-      - name: Both registry credentials are configured
-        env:
-          OVSX_PAT: ${{ secrets.OVSX_PAT }}
-          VSCE_PAT: ${{ secrets.VSCE_PAT }}
-        run: |
-          set -euo pipefail
-          [ -n "$OVSX_PAT" ] || { echo "::error::OVSX_PAT is required"; exit 1; }
-          [ -n "$VSCE_PAT" ] || { echo "::error::VSCE_PAT is required"; exit 1; }
       - run: npm ci
       - name: Dependency audit
         # The release lock currently has zero findings. Keep that claim
@@ -87,20 +88,36 @@ jobs:
     needs: gate
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # The only job that can mint an OIDC token. It runs no repository code
+    # and restores no Actions cache: the two publishing CLIs come from the
+    # lockfile without install scripts, and npx never fetches anything else.
+    permissions:
+      contents: read
+      id-token: write
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+      - run: npm ci --ignore-scripts
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: vsix
+      # Both registries refuse a version that already exists, and nothing
+      # here asks them to ignore it: « already exists » does not prove the
+      # registry holds the bytes this run built.
       - name: Publish to OpenVSX (Cursor · Windsurf · VSCodium)
-        uses: HaaLeo/publish-vscode-extension@ca5561daa085dee804bf9f37fe0165785a9b14db # v2
-        with:
-          pat: ${{ secrets.OVSX_PAT }}
-          extensionFile: nika.vsix
-          skipDuplicate: false # existing version is an error; byte equality is unproven
-      - name: Publish to VS Marketplace
-        uses: HaaLeo/publish-vscode-extension@ca5561daa085dee804bf9f37fe0165785a9b14db # v2
-        with:
-          pat: ${{ secrets.VSCE_PAT }}
-          registryUrl: https://marketplace.visualstudio.com
-          extensionFile: nika.vsix
-          skipDuplicate: false # existing version is an error; byte equality is unproven
+        env:
+          # Set only for the first nika-open.nika version (see the header).
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        run: |
+          set -euo pipefail
+          if [ -n "$OVSX_PAT" ]; then
+            npx --no-install ovsx publish nika.vsix
+          else
+            npx --no-install ovsx publish nika.vsix --trusted-publishing
+          fi
+      - name: Publish to VS Marketplace (trusted publishing)
+        run: npx --no-install vsce publish --oidc --packagePath nika.vsix

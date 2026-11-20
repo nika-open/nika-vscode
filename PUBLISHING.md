@@ -99,20 +99,29 @@ operator-owned tag ceremony can make the registries claim that version.
 
 ## Blockers · accounts (do these FIRST · lead time)
 
-- [ ] **[VSM]** Publisher `nika-open` at marketplace.visualstudio.com/manage.
+- [x] **[VSM]** Publisher `nika-open` at marketplace.visualstudio.com/manage.
       Name + displayName are globally unique and burned forever on removal.
-- [ ] **[VSM]** Azure DevOps PAT: org = **All accessible organizations**,
-      scope **Marketplace › Manage** (the classic 401 is a wrong-org token).
-      ⚠️ Global PATs retire **Dec 1 2026** → plan Entra ID
-      (`vsce publish --azure-credential`, vsce ≥ 2.26.1) from day one.
+- [x] **[VSM]** Trusted Publishing policy « Release workflow » on `nika-open`:
+      GitHub Actions · `nika-open/nika-vscode` · `release.yml` · no
+      environment. No Marketplace token exists: `vsce publish --oidc`
+      (vsce ≥ 4.0.0) exchanges the publish job's OIDC token. Azure DevOps
+      global PATs retire **Dec 1 2026**; the old publisher's `VSCE_PAT` only
+      serves `legacy-release.yml` (§Final old-identifier redirect release).
 - [ ] **[OVSX]** Eclipse account (GitHub username field filled) → log in to
       open-vsx.org via GitHub → link account → **sign the Open VSX Publisher
       Agreement** (not the ECA). Publishing blocked until signed.
 - [ ] **[OVSX]** Token at open-vsx.org/user-settings/tokens (`OVSX_PAT`) ·
-      then `npx ovsx create-namespace nika-open -p $OVSX_PAT`.
+      then `npx ovsx create-namespace nika-open -p $OVSX_PAT`. The token
+      publishes the FIRST `nika-open.nika` version only (next items).
 - [ ] **[OVSX]** Claim namespace OWNERSHIP (public issue at
       EclipseFdn/open-vsx.org, issue template) · kills the « unverified ⚠️ »
-      shield. No waiting period; do at launch. CI tokens = contributors.
+      shield, and only an owner can register a trusted publisher. No waiting
+      period; do at launch.
+- [ ] **[OVSX]** After the first version: open-vsx.org/user-settings/trusted-publishers
+      → namespace `nika-open` → GitHub Actions · `nika-open` · `nika-vscode` ·
+      `release.yml` · no environment, for `nika-open.nika`; then delete the
+      `OVSX_PAT` secret. OpenVSX rejects a registration for an extension that
+      has no version yet.
 - [ ] **[VSM]** Verified-publisher badge = month-6 project, not launch:
       publisher ≥ 6 months on VSM **and** domain registration ≥ 6 months ·
       apex domain TXT record · manual review. Display-name change revokes it.
@@ -195,18 +204,23 @@ microsoft/vscode-platform-specific-sample.
 
 The [standalone repository](https://github.com/nika-open/nika-vscode)
 runs [the tag workflow](.github/workflows/release.yml):
-tag-gated → refuse either missing registry secret →
-audit → typecheck · tests · parity → real VS Code integration against the
-checksum-verified `ENGINE_PIN` artifact → package → publish the SAME VSIX to
-OpenVSX then VSM via HaaLeo/publish-vscode-extension. Both secrets are
-mandatory for a green ceremony: `VSCE_PAT` · `OVSX_PAT`. Duplicate versions
-fail loudly; the ceremony never treats « already exists » as proof that the
-registry's bytes equal the VSIX built by this run.
+tag-gated → audit → typecheck · tests · parity → real VS Code integration
+against the checksum-verified `ENGINE_PIN` artifact → package → publish the
+SAME VSIX to OpenVSX then VSM with the `ovsx` and `vsce` CLIs of the lockfile
+(`npm ci --ignore-scripts`, `npx --no-install`). Only the publish job may
+request an OIDC token, and no job holds a Marketplace secret: VSM trusts the
+workflow through its Trusted Publishing policy (`vsce publish --oidc`).
+OpenVSX publishes with `OVSX_PAT` while that secret exists, which only the
+first version needs, and through its trusted publisher once the secret is
+deleted (`ovsx publish --trusted-publishing`). An identity a registry does not
+recognize fails its publish step. Duplicate versions fail loudly; the ceremony
+never treats « already exists » as proof that the registry's bytes equal the
+VSIX built by this run.
 
 This is not a cross-registry transaction. OpenVSX can succeed before Marketplace
 fails. Preserve the built VSIX and diagnose each registry's actual state;
 neither a missing second publication nor an occupied version justifies deleting
-published bytes, moving the tag or setting `skipDuplicate: true`.
+published bytes, moving the tag or asking a registry to skip duplicates.
 Readiness and manual checks are operator gates before the tag; CI does not
 certify that somebody completed them.
 
@@ -224,8 +238,10 @@ certify that somebody completed them.
 Official: code.visualstudio.com/api (publishing-extension ·
 extension-manifest · workspace-trust · virtual-workspaces · webview ·
 web-extensions · telemetry · activation-events · bundling · CI) ·
-github.com/eclipse-openvsx wiki (Publishing · Namespace-Access) ·
-microsoft/vscode-vsce · HaaLeo/publish-vscode-extension ·
+github.com/eclipse-openvsx wiki (Publishing · Namespace-Access ·
+Trusted-Publishing) · aka.ms/vsm/trustedpublishing (Marketplace Trusted
+Publishing) · microsoft/vscode-vsce (Trusted publishing) ·
+HaaLeo/publish-vscode-extension (the legacy and recovery workflows) ·
 developer.microsoft.com security-and-trust blog (2025 scanning pipeline).
 
 
@@ -237,6 +253,11 @@ canonical listing, generates a legacy source tree without editing the root
 manifest, runs the complete compile/test/integration/package gates, and publishes
 one VSIX to both registries under `supernovae.nika-lang`. Existing-version
 collisions still fail. Never move either tag or rerun by suppressing duplicates.
+
+`legacy-release.yml` still publishes with `VSCE_PAT` and `OVSX_PAT`: the old
+`supernovae` publisher has no Trusted Publishing policy. Run the legacy tag
+before those secrets are deleted and before Azure DevOps retires global PATs
+(Dec 1 2026), or give that publisher a policy for `legacy-release.yml` first.
 
 The legacy source retains functional contributions, settings, activation events,
 workspace trust policy and old deep links. Its README directs users to disable

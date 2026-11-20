@@ -229,11 +229,24 @@ test('the integration launcher cannot fall back to Homebrew or PATH', () => {
 
 test('the release ceremony fails closed and gates before packaging', () => {
   const workflow = readFileSync(resolve(root, '.github/workflows/release.yml'), 'utf8');
-  assert.match(workflow, /\[ -n "\$OVSX_PAT" \].*exit 1/);
-  assert.match(workflow, /\[ -n "\$VSCE_PAT" \].*exit 1/);
+  const code = (text) => text.split('\n').filter((line) => !/^\s*#/.test(line)).join('\n');
+  const [gate, publish] = workflow.split(/\n {2}publish:\n/);
+  assert.ok(publish, 'release.yml has a publish job after the gate');
+  // Trusted publishing: no Marketplace secret anywhere, and the gate (which
+  // runs every dev dependency) can neither mint an OIDC token nor read a secret.
+  assert.doesNotMatch(code(workflow), /VSCE_PAT/);
+  assert.doesNotMatch(code(gate), /id-token|secrets\./);
+  assert.equal(code(publish).match(/id-token: write/g)?.length, 1);
+  // The publish job runs the locked CLIs only: no install scripts, no npx fetch.
+  assert.match(publish, /^\s+- run: npm ci --ignore-scripts$/m);
+  assert.doesNotMatch(code(publish), /uses: HaaLeo\//);
+  assert.match(publish, /^\s+npx --no-install ovsx publish nika\.vsix$/m);
+  assert.match(publish, /^\s+npx --no-install ovsx publish nika\.vsix --trusted-publishing$/m);
+  assert.match(publish, /^\s+run: npx --no-install vsce publish --oidc --packagePath nika\.vsix$/m);
+  assert.ok(publish.indexOf('ovsx publish') < publish.indexOf('vsce publish'));
+  // An occupied version stays an error in both registries.
   assert.doesNotMatch(workflow, /HAS_OVSX|HAS_VSCE|if: env\.HAS_/);
-  assert.doesNotMatch(workflow, /skipDuplicate:\s*true|skip-duplicate/);
-  assert.equal(workflow.match(/skipDuplicate:\s*false/g)?.length, 2);
+  assert.doesNotMatch(workflow, /skipDuplicate|skip-duplicate/);
   assert.ok(workflow.indexOf('npm audit --audit-level=low') < workflow.indexOf('npm run test:integration'));
   assert.ok(workflow.indexOf('npm run test:integration') < workflow.indexOf('npx vsce package'));
   for (const action of workflow.matchAll(/uses:\s+([^\s#]+)/g)) {
