@@ -120,28 +120,31 @@ operator-owned tag ceremony can make the registries claim that version.
       cannot publish through OIDC: « Marketplace OIDC token exchange failed
       with 400 Bad Request: No api-version was supplied ». vsce 4.1.0
       changed that exchange; bump vsce before any `vsce publish --oidc`.
-      Azure DevOps global PATs retire **Dec 1 2026**.
+      The repository holds no Azure DevOps token any more: `VSCE_PAT` was
+      deleted on 2026-11-20.
 - [x] **[VSM]** Trusted Publishing policy « Legacy release workflow » on the
       old publisher `supernovae`: GitHub Actions · `nika-open/nika-vscode` ·
       `legacy-release.yml` · no environment (§Final old-identifier redirect
-      release). Neither release workflow reads `VSCE_PAT` any more; only the
-      historical one-offs `listing-patch.yml` and `marketplace-recover.yml`
-      still name it.
+      release). Neither release workflow reads `VSCE_PAT`. The historical
+      one-offs `listing-patch.yml` and `marketplace-recover.yml` require it,
+      and `listing-patch.yml` also `OVSX_PAT`; both secrets were deleted on
+      2026-11-20, so neither one-off can run any more.
 - [x] **[OVSX]** Eclipse account (GitHub username field filled) → log in to
       open-vsx.org via GitHub → link account → **sign the Open VSX Publisher
       Agreement** (not the ECA). Publishing blocked until signed.
 - [x] **[OVSX]** Token at open-vsx.org/user-settings/tokens (`OVSX_PAT`) and
       namespace `nika-open`. The token published the FIRST `nika-open.nika`
-      version, 0.120.1, on 2026-11-20 (run 44766596613).
+      version, 0.120.1, on 2026-11-20 (run 44766596613). The secret was
+      deleted the same day, once the trusted publisher below existed.
 - [x] **[OVSX]** Namespace OWNERSHIP: EclipseFdn/open-vsx.org#16019, closed
       on 2026-11-20, so `nika-open` is verified. Only an owner can register a
       trusted publisher.
-- [ ] **[OVSX]** open-vsx.org/user-settings/trusted-publishers → namespace
-      `nika-open` → GitHub Actions · `nika-open` · `nika-vscode` ·
-      `release.yml` · no environment, for `nika-open.nika`, which now has the
-      version OpenVSX requires before a registration. Delete the `OVSX_PAT`
-      secret afterwards, unless an OpenVSX-only redirect release of the old
-      identifiers still needs it (§Final old-identifier redirect release).
+- [x] **[OVSX]** open-vsx.org/user-settings/trusted-publishers → namespace
+      `nika-open` → GitHub · `nika-open` · `nika-vscode` · `release.yml` ·
+      no environment, for `nika-open.nika`, which had the version OpenVSX
+      requires before a registration. Registered on 2026-11-20, then the
+      `OVSX_PAT` secret was deleted. No release has published through it
+      yet.
 - [ ] **[VSM]** Verified-publisher badge = month-6 project, not launch:
       publisher ≥ 6 months on VSM **and** domain registration ≥ 6 months ·
       apex domain TXT record · manual review. Display-name change revokes it.
@@ -229,9 +232,9 @@ against the checksum-verified `ENGINE_PIN` artifact → package → publish the
 VSIX to OpenVSX with the `ovsx` CLI of the lockfile (`npm ci --ignore-scripts`,
 `npx --no-install`). Nothing publishes to the Marketplace (§Blockers ·
 accounts). Only the publish job may request an OIDC token. OpenVSX publishes
-with `OVSX_PAT` while that secret exists, which only the first version needed,
-and through its trusted publisher once the secret is deleted
-(`ovsx publish --trusted-publishing`). An identity a registry does not
+through its trusted publisher (`ovsx publish --trusted-publishing`). Only the
+first version needed the `OVSX_PAT` secret, deleted since; the step uses that
+secret instead whenever one is stored again. An identity a registry does not
 recognize fails its publish step. Duplicate versions fail loudly; the ceremony
 never treats « already exists » as proof that the registry's bytes equal the
 VSIX built by this run.
@@ -316,10 +319,12 @@ Never move either tag or rerun by suppressing duplicates.
 
 Registry identity: the publisher `supernovae` trusts `legacy-release.yml`
 through its own policy « Legacy release workflow » (`vsce publish --oidc`). On
-OpenVSX the workflow publishes with `OVSX_PAT` while that secret exists, and
-through a trusted publisher once it is deleted: run the legacy tag first, or
-register `legacy-release.yml` for `nika` and `nika-lang` in namespace
-`supernovae` before deleting it.
+OpenVSX the workflow publishes with `OVSX_PAT` if that secret exists, and
+through a trusted publisher otherwise. The secret was deleted on 2026-11-20,
+and the namespace `supernovae` is not verified, so it offers no trusted
+publisher: a legacy tag first needs a new token of a member of that namespace
+stored as `OVSX_PAT`, or an ownership claim on it and a trusted publisher for
+`legacy-release.yml`.
 
 The legacy source retains functional contributions, settings, activation events,
 workspace trust policy and old deep links. Its README directs users to disable
