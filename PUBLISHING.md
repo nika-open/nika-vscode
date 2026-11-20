@@ -15,6 +15,10 @@ confidence gate between "the pyramid is green" and "a stranger's first
                                    gate — v0.93.0 died here in 16s: a
                                    feature-branch merge moved a transitive
                                    esbuild without regenerating the lock)
+               node scripts/release-audit.mjs → the release gates' audit:
+                                   any advisory at low or above outside
+                                   its named exceptions blocks the tag
+                                   (§Dependency audit)
                npm run compile  → typecheck + build before the belt judges
                                    the extension and browser artifacts
                npm test         → the belt suite whole (vitest · spec
@@ -105,8 +109,13 @@ operator-owned tag ceremony can make the registries claim that version.
       GitHub Actions · `nika-open/nika-vscode` · `release.yml` · no
       environment. No Marketplace token exists: `vsce publish --oidc`
       (vsce ≥ 4.0.0) exchanges the publish job's OIDC token. Azure DevOps
-      global PATs retire **Dec 1 2026**; the old publisher's `VSCE_PAT` only
-      serves `legacy-release.yml` (§Final old-identifier redirect release).
+      global PATs retire **Dec 1 2026**.
+- [x] **[VSM]** Trusted Publishing policy « Legacy release workflow » on the
+      old publisher `supernovae`: GitHub Actions · `nika-open/nika-vscode` ·
+      `legacy-release.yml` · no environment (§Final old-identifier redirect
+      release). Neither release workflow reads `VSCE_PAT` any more; only the
+      historical one-offs `listing-patch.yml` and `marketplace-recover.yml`
+      still name it.
 - [ ] **[OVSX]** Eclipse account (GitHub username field filled) → log in to
       open-vsx.org via GitHub → link account → **sign the Open VSX Publisher
       Agreement** (not the ECA). Publishing blocked until signed.
@@ -119,9 +128,11 @@ operator-owned tag ceremony can make the registries claim that version.
       period; do at launch.
 - [ ] **[OVSX]** After the first version: open-vsx.org/user-settings/trusted-publishers
       → namespace `nika-open` → GitHub Actions · `nika-open` · `nika-vscode` ·
-      `release.yml` · no environment, for `nika-open.nika`; then delete the
-      `OVSX_PAT` secret. OpenVSX rejects a registration for an extension that
-      has no version yet.
+      `release.yml` · no environment, for `nika-open.nika`. OpenVSX rejects a
+      registration for an extension that has no version yet. Delete the
+      `OVSX_PAT` secret once the legacy release ran, or once namespace
+      `supernovae` trusts `legacy-release.yml` for `nika` and `nika-lang`
+      (§Final old-identifier redirect release).
 - [ ] **[VSM]** Verified-publisher badge = month-6 project, not launch:
       publisher ≥ 6 months on VSM **and** domain registration ≥ 6 months ·
       apex domain TXT record · manual review. Display-name change revokes it.
@@ -204,7 +215,7 @@ microsoft/vscode-platform-specific-sample.
 
 The [standalone repository](https://github.com/nika-open/nika-vscode)
 runs [the tag workflow](.github/workflows/release.yml):
-tag-gated → audit → typecheck · tests · parity → real VS Code integration
+tag-gated → audit (§Dependency audit) → typecheck · tests · parity → real VS Code integration
 against the checksum-verified `ENGINE_PIN` artifact → package → publish the
 SAME VSIX to OpenVSX then VSM with the `ovsx` and `vsce` CLIs of the lockfile
 (`npm ci --ignore-scripts`, `npx --no-install`). Only the publish job may
@@ -224,6 +235,33 @@ published bytes, moving the tag or asking a registry to skip duplicates.
 Readiness and manual checks are operator gates before the tag; CI does not
 certify that somebody completed them.
 
+## Dependency audit
+
+Both release gates run `node scripts/release-audit.mjs` in place of
+`npm audit --audit-level=low`. It reads `npm audit --json` and refuses
+publication on any advisory at low or above, except the exceptions it names.
+An exception names one advisory, the package it affects and the only packages
+allowed to depend on the affected copy: the same advisory reached through any
+other package still blocks, and so does any other advisory on those packages.
+An exception that no longer matches the audit prints a warning; remove it then.
+Adding one changes `ACCEPTED` in the script and the test that pins it.
+
+**GHSA-g3hv-75wg-m249** · `minimatch` 10.2.6, only through
+`vscode-languageclient` 10.1.1 (moderate: denial of service through globparts
+amplification, fixed in minimatch 11.0.1).
+
+- Every `vscode-languageclient` release up to upstream `main` declares
+  minimatch ^10.2.6 and calls `Minimatch#makeRe()`, which minimatch 11
+  removed: forcing 11 breaks the client (`matcher.makeRe is not a function`).
+- The client compiles a pattern only for the file operation, pull diagnostic
+  and notebook filters a language server declares. `nika lsp` declares none of
+  them and registers no capability at run time (engine v0.120.1, v0.124.5 and
+  `main`, `crates/nika-lsp/src/capabilities.rs`). Such a pattern would come
+  from the language server, a process the user already runs.
+- Remove the exception when a client release accepts minimatch 11.0.1 or later
+  ([microsoft/vscode-languageserver-node#1938](https://github.com/microsoft/vscode-languageserver-node/issues/1938)).
+  Assess it again if `nika lsp` starts declaring one of those filters.
+
 ## Lifecycle traps (learned from others' scars)
 
 - Deleting a published VERSION burns that version number forever
@@ -241,32 +279,42 @@ web-extensions · telemetry · activation-events · bundling · CI) ·
 github.com/eclipse-openvsx wiki (Publishing · Namespace-Access ·
 Trusted-Publishing) · aka.ms/vsm/trustedpublishing (Marketplace Trusted
 Publishing) · microsoft/vscode-vsce (Trusted publishing) ·
-HaaLeo/publish-vscode-extension (the legacy and recovery workflows) ·
+HaaLeo/publish-vscode-extension (the historical recovery workflows) ·
 developer.microsoft.com security-and-trust blog (2025 scanning pipeline).
 
 
 ## Final old-identifier redirect release
 
-After the canonical version is public in BOTH registries, the separate
-`legacy-v<engine-version>` tag runs `legacy-release.yml`. It refuses an absent
-canonical listing, generates a legacy source tree without editing the root
-manifest, runs the complete compile/test/integration/package gates, and publishes
-one VSIX to both registries under `supernovae.nika-lang`. Existing-version
-collisions still fail. Never move either tag or rerun by suppressing duplicates.
+Two old identifiers live on the old publisher `supernovae`:
+`supernovae.nika` (0.120.0, the canonical listing before the move to
+`nika-open`) and `supernovae.nika-lang` (0.116.3). After `nika-open.nika` is
+public in BOTH registries at a version, a `legacy-v<version>` tag on the code
+of `v<version>` runs `legacy-release.yml`. It refuses an absent canonical
+listing, generates one legacy source tree per old identifier without editing
+the root manifest, runs the complete audit/compile/test/integration/package
+gates on each, and only then publishes each VSIX to both registries under its
+old identifier. Each keeps the display name its listing already owns, because
+Marketplace display names are unique. Existing-version collisions still fail.
+Never move either tag or rerun by suppressing duplicates.
 
-`legacy-release.yml` still publishes with `VSCE_PAT` and `OVSX_PAT`: the old
-`supernovae` publisher has no Trusted Publishing policy. Run the legacy tag
-before those secrets are deleted and before Azure DevOps retires global PATs
-(Dec 1 2026), or give that publisher a policy for `legacy-release.yml` first.
+Registry identity: the publisher `supernovae` trusts `legacy-release.yml`
+through its own policy « Legacy release workflow » (`vsce publish --oidc`). On
+OpenVSX the workflow publishes with `OVSX_PAT` while that secret exists, and
+through a trusted publisher once it is deleted: run the legacy tag first, or
+register `legacy-release.yml` for `nika` and `nika-lang` in namespace
+`supernovae` before deleting it.
 
 The legacy source retains functional contributions, settings, activation events,
 workspace trust policy and old deep links. Its README directs users to disable
 the legacy extension before installing the new identifier. Migration is explicit;
 the legacy artifact does not delete storage, uninstall itself or claim that VS Code
-moves extension storage across identifiers. Keep the old listing available.
+moves extension storage across identifiers. Keep the old listings available.
 
-Local preparation: `node scripts/prepare-legacy-release.mjs <absent-directory>`,
-then `npm ci`, `npm run compile`, `npm test`, `npm run test:integration`, and
-`npx vsce package --no-dependencies` in that generated source. The same manual
-readiness pass applies before a legacy tag. Registry presence is a prerequisite,
-not evidence that any tag was published.
+Local preparation: `node scripts/prepare-legacy-release.mjs <absent-directory>
+<nika | nika-lang>`, then `npm ci`, `node scripts/release-audit.mjs`,
+`npm run compile`, `npm test`, `npm run test:integration`, and
+`npx vsce package --no-dependencies` in that generated source. Generate it
+inside a git checkout, as CI does: the file identity ratchet of `npm test`
+reads `git ls-files`. The same manual readiness pass applies before a legacy
+tag. Registry presence is a prerequisite, not evidence that any tag was
+published.
