@@ -37,7 +37,7 @@
 
 [![CI](https://img.shields.io/github/actions/workflow/status/nika-open/nika-vscode/ci.yml?branch=main&label=ci)](https://github.com/nika-open/nika-vscode/actions/workflows/ci.yml)
 [![OpenSSF Scorecard](https://img.shields.io/ossf-scorecard/github.com/nika-open/nika-vscode?label=openssf%20scorecard)](https://scorecard.dev/viewer/?uri=github.com/nika-open/nika-vscode)
-[![Software Heritage](https://img.shields.io/badge/Software%20Heritage-archive-blue.svg)](https://archive.softwareheritage.org/browse/origin/?origin_url=https://github.com/supernovae-st/nika-vscode)
+[![Software Heritage](https://img.shields.io/badge/Software%20Heritage-archive-blue.svg)](https://archive.softwareheritage.org/browse/origin/?origin_url=https://github.com/nika-open/nika-vscode)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 
 </div>
