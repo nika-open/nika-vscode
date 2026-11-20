@@ -15,21 +15,23 @@
 </p>
 
 > [!WARNING]
-> **Frozen at 0.120.1.** The extension on both marketplaces is
-> `nika-open.nika` 0.120.1, its first release under that name. It is no
-> longer developed, and it was not qualified with engine 0.123 or later.
-> Its download offer and Homebrew both install the latest engine release,
-> so with 0.123 or later point the `nika.server.path` setting at your
-> installed binary, and if the editor and the command line disagree, trust
-> `nika check`. Any editor that reads the published JSON Schema and runs
+> **Frozen.** The extension is no longer developed, and it was not
+> qualified with engine 0.123 or later. Open VSX serves `nika-open.nika`
+> 0.120.1. The Visual Studio Marketplace keeps `supernovae.nika` 0.120.0:
+> it refuses a second extension named `nika` and does not move an
+> extension to another publisher. Both offer to download the latest engine
+> release, which Homebrew installs too, so with 0.123 or later point the
+> `nika.server.path` setting at your installed binary, and if the editor
+> and the command line disagree, trust `nika check`. Any editor that reads
+> the published JSON Schema and runs
 > `nika lsp` gets the same checks without this extension. See the
 > [known limits](https://docs.nika.sh/changelog/known-limits).
 
 <div align="center">
 
-[![Version](https://vsmarketplacebadges.dev/version-short/nika-open.nika.svg)](https://marketplace.visualstudio.com/items?itemName=nika-open.nika)
-[![Installs](https://vsmarketplacebadges.dev/installs-short/nika-open.nika.svg)](https://marketplace.visualstudio.com/items?itemName=nika-open.nika)
-[![Rating](https://vsmarketplacebadges.dev/rating-short/nika-open.nika.svg)](https://marketplace.visualstudio.com/items?itemName=nika-open.nika&ssr=false#review-details)
+[![VS Marketplace](https://vsmarketplacebadges.dev/version-short/supernovae.nika.svg)](https://marketplace.visualstudio.com/items?itemName=supernovae.nika)
+[![Installs](https://vsmarketplacebadges.dev/installs-short/supernovae.nika.svg)](https://marketplace.visualstudio.com/items?itemName=supernovae.nika)
+[![Rating](https://vsmarketplacebadges.dev/rating-short/supernovae.nika.svg)](https://marketplace.visualstudio.com/items?itemName=supernovae.nika&ssr=false#review-details)
 [![Open VSX](https://img.shields.io/open-vsx/v/nika-open/nika?label=Open%20VSX&color=2b62ea)](https://open-vsx.org/extension/nika-open/nika)
 [![Open VSX downloads](https://img.shields.io/open-vsx/dt/nika-open/nika?label=downloads&color=555)](https://open-vsx.org/extension/nika-open/nika)
 
@@ -221,8 +223,8 @@ did not report.
 
 | Your editor | Install from |
 |---|---|
-| **VS Code** | the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=nika-open.nika), or `code --install-extension nika-open.nika` |
-| **Cursor · Windsurf · VSCodium** | [Open VSX](https://open-vsx.org/extension/nika-open/nika), through the same Extensions search |
+| **VS Code** | `supernovae.nika` 0.120.0 from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=supernovae.nika), or `code --install-extension supernovae.nika` |
+| **Cursor · Windsurf · VSCodium** | `nika-open.nika` 0.120.1 from [Open VSX](https://open-vsx.org/extension/nika-open/nika), through the same Extensions search |
 | **JetBrains · Zed · Neovim** | not this extension: they get the same checks from `nika lsp` and the published JSON Schema |
 
 **The engine** powers everything past syntax colors. Install it with
@@ -234,9 +236,11 @@ snippets and a graph the extension draws itself; completions from the
 engine's schema (`nika spec --schema`) arrive with the engine.
 
 > [!IMPORTANT]
-> The published release, **0.120.1**, accepts a stable engine 0.120.1 or
-> newer and sets no upper bound, so it also accepts 0.123 and later, which
-> it was not qualified with. To use a binary you already have, point
+> Each published version accepts a stable engine from its own floor on,
+> **0.120.1** for `nika-open.nika` 0.120.1 and **0.118.2** for
+> `supernovae.nika` 0.120.0, and sets no upper bound, so both also accept
+> 0.123 and later, which they were not qualified with. To use a binary you
+> already have, point
 > `nika.server.path` at it. An older, malformed or prerelease engine gets an update notice; the
 > extension never replaces your binary behind your back.
 
@@ -250,10 +254,12 @@ engine's schema (`nika spec --schema`) arrive with the engine.
 - The integration suites of 0.120.1 target public engine **v0.120.1** from
   `ENGINE_PIN`, verified against the archive digests and build commit
   stored in the installer.
-- A download always asks first. The published 0.120.1 takes the latest
-  public release and refuses one below its 0.120.1 floor before the
-  executable is fetched; releases from 0.123 on pass that floor although
-  the extension was not qualified with them.
+- A download always asks first. Each published version takes the latest
+  public engine release and refuses one below its floor before the
+  executable is fetched; engine releases from 0.123 on pass both floors
+  although the extension was not qualified with them. `supernovae.nika`
+  0.120.0 still reaches them through the old `supernovae-st/nika` address,
+  which GitHub redirects to `nika-open/nika`.
 - Discovery freezes the chosen executable's absolute path, PATH entries
   and symlinks included. MCP wiring uses the same choice: Cursor and
   Windsurf can receive a machine-scoped absolute path, and portable
@@ -760,7 +766,9 @@ is in the extension's **Feature Contributions** tab.
 ## Deep links
 
 A runbook, a pull request or a chat message can open the editor on a
-workflow with a `vscode://` link:
+workflow with a `vscode://` link. The links below name `nika-open.nika`;
+with `supernovae.nika` from the Visual Studio Marketplace, they start
+with `vscode://supernovae.nika/` instead:
 
 ```text
 vscode://nika-open.nika/dag?file=deploy.nika      open the canvas on a workflow
@@ -886,7 +894,8 @@ come from your file icon theme:
 Found a vulnerability? Report it privately through
 [GitHub security advisories](https://github.com/nika-open/nika-vscode/security/advisories/new),
 not in a public issue. [SECURITY.md](SECURITY.md) has the details. The
-extension is frozen at 0.120.1, the release on both marketplaces.
+extension is frozen: `nika-open.nika` 0.120.1 on Open VSX,
+`supernovae.nika` 0.120.0 on the Visual Studio Marketplace.
 
 ## Contributing
 

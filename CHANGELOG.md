@@ -2,9 +2,10 @@
 
 All notable changes to the extension. Versions paced the engine's
 release line, in lockstep on the engine's major.minor from 0.97 to 0.120.
-The extension is frozen at 0.120.1, its first release as `nika-open.nika`
-on both marketplaces, and was not qualified with engine 0.123 or later.
-Up to 0.120.0 (2026-09-18) it was published as `supernovae.nika`.
+The extension is frozen and was not qualified with engine 0.123 or later.
+Its last release, 0.120.1, is `nika-open.nika` on Open VSX. Up to 0.120.0
+(2026-09-18) it was published as `supernovae.nika`, which remains the
+Visual Studio Marketplace listing.
 
 ## [0.120.1] · public engine 0.120.1
 
@@ -22,7 +23,9 @@ NIKA-SEC-014 refuses a value read of a certainly-skipped confirm stage.
 
 It is the first release as `nika-open.nika`, after the repository moved to
 the `nika-open` organization: the publisher, the repository links and the
-release workflow changed.
+release workflow changed. It is published on Open VSX only. The Visual
+Studio Marketplace refused it, because the name `nika` belongs to
+`supernovae.nika` and an extension cannot move to another publisher.
 
 ## [0.120.0] · public engine qualification
 

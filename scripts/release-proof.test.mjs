@@ -244,8 +244,7 @@ function releaseCeremony(file) {
   // The publish job runs the locked CLIs only: no install scripts, no npx fetch.
   assert.match(publish, /^\s+- run: npm ci --ignore-scripts$/m);
   assert.doesNotMatch(code(publish), /uses: HaaLeo\//);
-  assert.ok(publish.indexOf('ovsx publish') < publish.indexOf('vsce publish'));
-  // An occupied version stays an error in both registries.
+  // An occupied version stays an error in every registry.
   assert.doesNotMatch(workflow, /HAS_OVSX|HAS_VSCE|if: env\.HAS_/);
   assert.doesNotMatch(workflow, /skipDuplicate|skip-duplicate/);
   // The audit is the gate with its named exceptions, never a bare npm audit,
@@ -262,11 +261,12 @@ function releaseCeremony(file) {
   return { gate, publish };
 }
 
-test('the release ceremony fails closed and gates before packaging', () => {
+test('the release ceremony fails closed, gates before packaging and publishes to OpenVSX only', () => {
   const { publish } = releaseCeremony('release.yml');
   assert.match(publish, /^\s+npx --no-install ovsx publish nika\.vsix$/m);
   assert.match(publish, /^\s+npx --no-install ovsx publish nika\.vsix --trusted-publishing$/m);
-  assert.match(publish, /^\s+run: npx --no-install vsce publish --oidc --packagePath nika\.vsix$/m);
+  // The Marketplace keeps supernovae.nika: it refuses a second extension named nika.
+  assert.doesNotMatch(publish, /vsce publish/);
 });
 
 test('the legacy ceremony gates both old identifiers before publishing either', () => {
@@ -280,6 +280,7 @@ test('the legacy ceremony gates both old identifiers before publishing either', 
   assert.match(publish, /^\s+npx --no-install ovsx publish "\$VSIX"$/m);
   assert.match(publish, /^\s+npx --no-install ovsx publish "\$VSIX" --trusted-publishing$/m);
   assert.match(publish, /^\s+run: npx --no-install vsce publish --oidc --packagePath "\$VSIX"$/m);
+  assert.ok(publish.indexOf('ovsx publish') < publish.indexOf('vsce publish'));
   // The canonical listings are public before the old identifier's tree exists.
   const listings = gate.indexOf('node scripts/check-canonical-listings.mjs');
   const prepare = gate.indexOf('node scripts/prepare-legacy-release.mjs legacy-source "$LEGACY"');

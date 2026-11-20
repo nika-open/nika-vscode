@@ -1,24 +1,20 @@
-# release.yml — tag-gated publish (OpenVSX + VS Marketplace).
+# release.yml — tag-gated publish to OpenVSX.
 #
-# Push a `v*` tag → package the VSIX once → publish the identical artifact
-# to both registries. One VSIX, two registries: a green tag means both
-# publishes ran.
+# Push a `v*` tag → package the VSIX once → publish it to OpenVSX: a green
+# tag means that publish ran. VS Code's Marketplace keeps the old identifier
+# supernovae.nika 0.120.0. It refused nika-open.nika because the extension
+# name `nika` belongs to that listing, and an extension never moves to
+# another publisher (PUBLISHING.md §Blockers · accounts).
 # Linux runner ON PURPOSE: Windows-built VSIXes drop the POSIX executable
 # bit, which breaks any bundled binary (PUBLISHING.md §platform-specific).
 # Injection-safe: no github.event data is interpolated anywhere.
 #
-# Registry identity · trusted publishing (OIDC), no Marketplace secret:
-#   VS Marketplace · the publisher nika-open trusts this repository and this
-#                    file (policy « Release workflow »): `vsce publish --oidc`
-#                    exchanges the publish job's GitHub token for a
-#                    Marketplace credential that lasts 15 minutes.
-#   OpenVSX        · a trusted publisher can only be registered for an
-#                    extension that already has a version, so the FIRST
-#                    nika-open.nika version goes out with the OVSX_PAT secret
-#                    (an open-vsx.org token of a nika-open namespace owner).
-#                    Then register the trusted publisher for nika-open.nika
-#                    and delete OVSX_PAT: the same step exchanges the job's
-#                    token from then on (PUBLISHING.md §Live release CI).
+# Registry identity · OpenVSX: a trusted publisher can only be registered
+# for an extension that already has a version, so the FIRST nika-open.nika
+# version (0.120.1) went out with the OVSX_PAT secret (an open-vsx.org token
+# of a nika-open namespace owner). Register the trusted publisher for
+# nika-open.nika, then delete OVSX_PAT: the same step exchanges the job's
+# OIDC token from then on (PUBLISHING.md §Live release CI).
 
 name: release
 
@@ -90,7 +86,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     # The only job that can mint an OIDC token. It runs no repository code
-    # and restores no Actions cache: the two publishing CLIs come from the
+    # and restores no Actions cache: the publishing CLI comes from the
     # lockfile without install scripts, and npx never fetches anything else.
     permissions:
       contents: read
@@ -106,9 +102,9 @@ jobs:
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: vsix
-      # Both registries refuse a version that already exists, and nothing
-      # here asks them to ignore it: « already exists » does not prove the
-      # registry holds the bytes this run built.
+      # OpenVSX refuses a version that already exists, and nothing here asks
+      # it to ignore one: « already exists » does not prove the registry
+      # holds the bytes this run built.
       - name: Publish to OpenVSX (Cursor · Windsurf · VSCodium)
         env:
           # Set only for the first nika-open.nika version (see the header).
@@ -120,5 +116,3 @@ jobs:
           else
             npx --no-install ovsx publish nika.vsix --trusted-publishing
           fi
-      - name: Publish to VS Marketplace (trusted publishing)
-        run: npx --no-install vsce publish --oidc --packagePath nika.vsix
