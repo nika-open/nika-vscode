@@ -15,10 +15,11 @@
 </p>
 
 > [!WARNING]
-> **Frozen at 0.120.0.** The extension on both marketplaces is release
-> 0.120.0, it is no longer developed, and it was not qualified with engine
-> 0.123. Its download offer and Homebrew both install the latest engine
-> release, so with 0.123 point the `nika.server.path` setting at your
+> **Frozen at 0.120.1.** The extension on both marketplaces is
+> `nika-open.nika` 0.120.1, its first release under that name. It is no
+> longer developed, and it was not qualified with engine 0.123 or later.
+> Its download offer and Homebrew both install the latest engine release,
+> so with 0.123 or later point the `nika.server.path` setting at your
 > installed binary, and if the editor and the command line disagree, trust
 > `nika check`. Any editor that reads the published JSON Schema and runs
 > `nika lsp` gets the same checks without this extension. See the
@@ -233,10 +234,10 @@ snippets and a graph the extension draws itself; completions from the
 engine's schema (`nika spec --schema`) arrive with the engine.
 
 > [!IMPORTANT]
-> The published release, **0.120.0**, accepts a stable engine 0.118.2 or
-> newer and sets no upper bound, so it also accepts 0.123, which it was not
-> qualified with. To use a binary you already have, point `nika.server.path`
-> at it. An older, malformed or prerelease engine gets an update notice; the
+> The published release, **0.120.1**, accepts a stable engine 0.120.1 or
+> newer and sets no upper bound, so it also accepts 0.123 and later, which
+> it was not qualified with. To use a binary you already have, point
+> `nika.server.path` at it. An older, malformed or prerelease engine gets an update notice; the
 > extension never replaces your binary behind your back.
 
 <details>
@@ -246,14 +247,13 @@ engine's schema (`nika spec --schema`) arrive with the engine.
   agent wiring start: configured, bundled, on PATH, cached or downloaded,
   and again on every restart. Syntax, snippets and static views stay
   available meanwhile.
-- This repository's `main` holds source 0.120.1, never published. Its
-  integration suites target public engine **v0.120.1** from `ENGINE_PIN`,
-  verified against the archive digests and build commit stored in the
-  installer.
-- A download always asks first. The published 0.120.0 takes the latest
-  public release and refuses one below its 0.118.2 floor before the
-  executable is fetched; the latest release today is 0.123, which it
-  accepts without having been qualified with it.
+- The integration suites of 0.120.1 target public engine **v0.120.1** from
+  `ENGINE_PIN`, verified against the archive digests and build commit
+  stored in the installer.
+- A download always asks first. The published 0.120.1 takes the latest
+  public release and refuses one below its 0.120.1 floor before the
+  executable is fetched; releases from 0.123 on pass that floor although
+  the extension was not qualified with them.
 - Discovery freezes the chosen executable's absolute path, PATH entries
   and symlinks included. MCP wiring uses the same choice: Cursor and
   Windsurf can receive a machine-scoped absolute path, and portable
@@ -886,7 +886,7 @@ come from your file icon theme:
 Found a vulnerability? Report it privately through
 [GitHub security advisories](https://github.com/nika-open/nika-vscode/security/advisories/new),
 not in a public issue. [SECURITY.md](SECURITY.md) has the details. The
-extension is frozen at 0.120.0, the release on both marketplaces.
+extension is frozen at 0.120.1, the release on both marketplaces.
 
 ## Contributing
 

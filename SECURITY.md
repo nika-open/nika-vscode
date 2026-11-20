@@ -33,9 +33,9 @@ Please report vulnerabilities privately via
 
 ## Supported
 
-The extension is frozen at 0.120.0, the release on both marketplaces. It is
-no longer developed and was not qualified with engine 0.123. Report a
-vulnerability in it privately, as above. The engine it runs, including
+The extension is frozen at 0.120.1, the release on both marketplaces. It is
+no longer developed and was not qualified with engine 0.123 or later.
+Report a vulnerability in it privately, as above. The engine it runs, including
 `nika lsp`, has its own
 [security policy](https://github.com/nika-open/nika/blob/main/SECURITY.md).
 Older `.vsix` artifacts are not patched retroactively.
